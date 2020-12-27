@@ -28,17 +28,19 @@ export class TodoService {
     done: boolean,
     userId: string
   ) {
-    const updatedProduct = await this.findTodo(todoId, userId);
+    const updatedTodo = await this.findTodo(todoId, userId);
+
     if (title) {
-      updatedProduct.title = title;
+      updatedTodo.title = title;
     }
     if (desc) {
-      updatedProduct.description = desc;
+      updatedTodo.description = desc;
     }
     if (done) {
-      updatedProduct.done = done;
+      updatedTodo.done = done;
     }
-    updatedProduct.save();
+    await updatedTodo.save();
+    return updatedTodo;
   }
 
   async deleteOne(prodId: string, userId: string) {
@@ -46,20 +48,20 @@ export class TodoService {
       .deleteOne({ _id: prodId, userId })
       .exec();
     if (result.n === 0) {
-      throw new NotFoundException('Could not find product.');
+      throw new NotFoundException('Could not find Todo.');
     }
   }
 
   private async findTodo(id: string, userId: string): Promise<Todo> {
-    let product;
+    let todo;
     try {
-      product = await this.todoModel.findById(id).exec();
+      todo = await this.todoModel.findById(id).exec();
     } catch (error) {
-      throw new NotFoundException('Could not find product.');
+      throw new NotFoundException('Could not find todo.');
     }
-    if (!product || product.userId !== userId) {
-      throw new NotFoundException('Could not find product.');
+    if (!todo || todo.userId != userId) {
+      throw new NotFoundException('Could not find todo.');
     }
-    return product;
+    return todo;
   }
 }

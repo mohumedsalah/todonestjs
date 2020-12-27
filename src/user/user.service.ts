@@ -22,8 +22,8 @@ export class UserService {
   }
   async login(username: string, password: string) {
     const user = await this.userModel.findOne({ username });
-    if (!user || comparePassword(password, user.password)) {
-      throw new NotFoundException('Could not find product.');
+    if (!user || !comparePassword(password, user.password)) {
+      throw new NotFoundException('Could not find todo.');
     }
 
     return this.getToken(user.id, user.username);

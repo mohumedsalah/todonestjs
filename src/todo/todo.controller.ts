@@ -3,9 +3,9 @@ import {
   Body,
   Post,
   Get,
-  Patch,
   Param,
-  Delete
+  Delete,
+  Put
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 
@@ -30,8 +30,12 @@ export class TodoController {
   }
 
   @Get(':id')
-  getTodo(@Param('id') todoId: string, @Body('user') user: { id: string }) {
-    return this.todoService.getOne(todoId, user.id);
+  async getTodo(
+    @Param('id') todoId: string,
+    @Body('user') user: { id: string }
+  ) {
+    const result = await this.todoService.getOne(todoId, user.id);
+    return result;
   }
 
   @Delete(':id')
@@ -40,10 +44,10 @@ export class TodoController {
     @Body('user') user: { id: string }
   ) {
     await this.todoService.deleteOne(TodoId, user.id);
-    return null;
+    return { message: 'deleted success' };
   }
 
-  @Patch(':id')
+  @Put(':id')
   async editTodo(
     @Param('id') todoId: string,
     @Body('title') title: string,
@@ -51,7 +55,13 @@ export class TodoController {
     @Body('done') done: boolean,
     @Body('user') user: { id: string }
   ) {
-    await this.todoService.updateOne(todoId, title, desc, done, user.id);
-    return null;
+    const result = await this.todoService.updateOne(
+      todoId,
+      title,
+      desc,
+      done,
+      user.id
+    );
+    return result;
   }
 }
