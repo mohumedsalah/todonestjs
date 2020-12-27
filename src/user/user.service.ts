@@ -9,7 +9,7 @@ const saltRounds = 10;
 import { User } from './user.model';
 
 @Injectable()
-export class TodoService {
+export class UserService {
   constructor(
     @InjectModel('user') private readonly userModel: Model<User>,
     private readonly jwtService: JwtService
@@ -20,7 +20,8 @@ export class TodoService {
       password: this.hashPassword(password)
     });
     const result = await newUser.save();
-    return result;
+
+    return this.getToken(result.id, result.username);
   }
   async login(username, password) {
     const user = await this.userModel.findOne({ username });
