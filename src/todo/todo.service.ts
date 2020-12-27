@@ -7,22 +7,28 @@ import { Todo } from './todo.model';
 @Injectable()
 export class TodoService {
   constructor(@InjectModel('todo') private readonly todoModel: Model<Todo>) {}
-  async addOne(title: string, desc: string) {
-    const newTodo = new this.todoModel({ title, description: desc });
+  async addOne(title: string, desc: string, userId: string) {
+    const newTodo = new this.todoModel({ title, description: desc, userId });
     const result = await newTodo.save();
     return result;
   }
-  async getAll() {
-    const result = await this.todoModel.find({});
+  async getAll(userId: string) {
+    const result = await this.todoModel.find({ userId });
     return result;
   }
-  async getOne(id: string) {
-    const result = await this.findTodo(id);
+  async getOne(id: string, userId: string) {
+    const result = await this.findTodo(id, userId);
     return result;
   }
 
-  async updateOne(todoId: string, title: string, desc: string, done: boolean) {
-    const updatedProduct = await this.findTodo(todoId);
+  async updateOne(
+    todoId: string,
+    title: string,
+    desc: string,
+    done: boolean,
+    userId: string
+  ) {
+    const updatedProduct = await this.findTodo(todoId, userId);
     if (title) {
       updatedProduct.title = title;
     }
@@ -35,21 +41,23 @@ export class TodoService {
     updatedProduct.save();
   }
 
-  async deleteOne(prodId: string) {
-    const result = await this.todoModel.deleteOne({ _id: prodId }).exec();
+  async deleteOne(prodId: string, userId: string) {
+    const result = await this.todoModel
+      .deleteOne({ _id: prodId, userId })
+      .exec();
     if (result.n === 0) {
       throw new NotFoundException('Could not find product.');
     }
   }
 
-  private async findTodo(id: string): Promise<Todo> {
+  private async findTodo(id: string, userId: string): Promise<Todo> {
     let product;
     try {
       product = await this.todoModel.findById(id).exec();
     } catch (error) {
       throw new NotFoundException('Could not find product.');
     }
-    if (!product) {
+    if (!product || product.userId !== userId) {
       throw new NotFoundException('Could not find product.');
     }
     return product;

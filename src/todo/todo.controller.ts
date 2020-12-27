@@ -19,28 +19,27 @@ export class TodoController {
     @Body('desc') desc: string,
     @Body('user') user: { id: string }
   ) {
-    console.log(user.id, '*****************');
-    const generatedId = await this.todoService.addOne(title, desc);
+    const generatedId = await this.todoService.addOne(title, desc, user.id);
     return { id: generatedId };
   }
 
   @Get()
   async getAllTodo(@Body('user') user: { id: string }) {
-    const ret = await this.todoService.getAll();
+    const ret = await this.todoService.getAll(user.id);
     return ret;
   }
 
   @Get(':id')
-  getProduct(@Param('id') prodId: string, @Body('user') user: { id: string }) {
-    return this.todoService.getOne(prodId);
+  getTodo(@Param('id') todoId: string, @Body('user') user: { id: string }) {
+    return this.todoService.getOne(todoId, user.id);
   }
 
   @Delete(':id')
-  async removeProduct(
-    @Param('id') prodId: string,
+  async removeTodo(
+    @Param('id') TodoId: string,
     @Body('user') user: { id: string }
   ) {
-    await this.todoService.deleteOne(prodId);
+    await this.todoService.deleteOne(TodoId, user.id);
     return null;
   }
 
@@ -52,7 +51,7 @@ export class TodoController {
     @Body('done') done: boolean,
     @Body('user') user: { id: string }
   ) {
-    await this.todoService.updateOne(todoId, title, desc, done);
+    await this.todoService.updateOne(todoId, title, desc, done, user.id);
     return null;
   }
 }
